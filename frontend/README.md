@@ -1,8 +1,48 @@
-# React + Vite
+# React + Vite — чистый шаблон
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Краткое описание
+- Минималистичный шаблон для разработки SPA на React с Vite (HMR), Sass/CSS поддержкой и базовой конфигурацией ESLint.
 
-Currently, two official plugins are available:
+Требования
+- Node.js LTS (рекомендуется >=16)
+- npm / yarn / pnpm
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Быстрый старт (Linux)
+1. Установить зависимости:
+   ```bash
+   npm install
+   ```
+2. Запустить режим разработки:
+   ```bash
+   npm run dev
+   ```
+3. Создать сборку:
+   ```bash
+   npm run build
+   ```
+4. Предпросмотр сборки:
+   ```bash
+   npm run preview
+   ```
+5. Запустить линтинг:
+   ```bash
+   npm run lint
+   ```
+
+Структура проекта (пример)
+- index.html — HTML-шаблон
+- vite.config.js — конфигурация Vite
+- package.json — зависимости и скрипты
+- src/
+  - main.jsx — точка входа приложения
+  - App.jsx — корневой компонент
+  - components/ — компоненты (Header, Footer, ...)
+  - assets/ — статические ресурсы
+  - scss/ или css/ — стили
+
+Рекомендуемые скрипты (в package.json)
+- dev — запуск Vite в режиме разработки
+- build — сборка для продакшена
+- preview — локальный просмотр собранного билда
+- lint — запуск ESLint
+- test — запуск тестов (если добавлены)

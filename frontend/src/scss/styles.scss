@@ -1,14 +1,14 @@
 /*
 * Main
 */
-@import "styles/main.scss";
+@use "styles/main" as *;
 
 /*
 * Header
 */
-@import "styles/header.scss";
+@use "styles/header" as *;
 
 /*
 * Footer
 */
-@import "styles/footer.scss";
+@use "styles/footer" as *;
