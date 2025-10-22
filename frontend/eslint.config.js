@@ -10,7 +10,7 @@ export default defineConfig([
         files: ['**/*.{js,jsx}'],
         extends: [
             js.configs.recommended,
-            reactHooks.configs['recommended-latest'],
+            reactHooks.configs.flat['recommended-latest'],
             reactRefresh.configs.vite,
         ],
         languageOptions: {
@@ -24,11 +24,9 @@ export default defineConfig([
         },
         rules: {
             'no-unused-vars': ['warn', { varsIgnorePattern: '^[A-Z_]' }],
-            "react/prop-types": "off",
-            "react/jsx-key": "warn",
 
             //Предупреждение, вместо отключения валидации типов
-            //"react/prop-types": "warn"
         },
     },
 ])
+
