@@ -30,6 +30,9 @@ INSTALLED_APPS = [
     'src.main.apps.MainConfig',
     'src.seo.apps.SeoConfig',
 
+    # api
+    'src.api.apps.ApiConfig',
+
     # Other apps
 
     # sitemaps
@@ -73,7 +76,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 
 
-# Database SQLite, для режима development
+# Database SQLite, для режима development (расскоментировать при зобычном запуске с SQLite
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -81,7 +84,7 @@ DATABASES = {
     }
 }
 
-# PostgreSQL, для режима production расскоментировать
+# PostgreSQL, для режима development/production (расскоментировать при запуске через Docker
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
