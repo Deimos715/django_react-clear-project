@@ -30,6 +30,9 @@ INSTALLED_APPS = [
     'src.main.apps.MainConfig',
     'src.seo.apps.SeoConfig',
 
+    # REST
+    'rest_framework',
+
     # api
     'src.api.apps.ApiConfig',
 
