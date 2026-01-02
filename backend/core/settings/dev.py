@@ -7,3 +7,8 @@ ALLOWED_HOSTS = ['*']
 # INTERNAL_IPS = [
 #     '127.0.0.1',
 # ]
+
+# CORS
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',
+]

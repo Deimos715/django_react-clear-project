@@ -16,6 +16,10 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 SITE_ID = 1
 
 
+# CORS
+CORS_ALLOWED_ORIGINS = []
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -33,6 +37,9 @@ INSTALLED_APPS = [
     # REST
     'rest_framework',
 
+    # CORS
+    'corsheaders',
+
     # api
     'src.api.apps.ApiConfig',
 
@@ -47,6 +54,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    # CORS
+    'corsheaders.middleware.CorsMiddleware',
+    
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
