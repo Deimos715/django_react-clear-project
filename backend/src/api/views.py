@@ -1,9 +1,13 @@
-from django.shortcuts import render
-from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 from rest_framework.response import Response
 
 
-@api_view()
-def home(request):
-    return Response({'message': 'Главная страница'})
+class HomeAPIView(APIView):
+    '''
+    Стартовый API эндпоинт.
+    Возвращает тестовое сообщение для проверки связки React ↔ Django.
+    '''
+
+    def get(self, request, *args, **kwargs):
+        return Response({'message': 'Главная страница'})
 
