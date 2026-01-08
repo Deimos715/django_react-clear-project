@@ -31,8 +31,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # user apps
-    'src.main.apps.MainConfig',
-    'src.seo.apps.SeoConfig',
 
     # REST
     'rest_framework',
@@ -80,7 +78,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'src.seo.context_processors.seo_data',  # Контекстный процессор Seo
             ],
         },
     },
