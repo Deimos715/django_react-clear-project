@@ -116,36 +116,16 @@ class LogoutAPIView(APIView):
 
     Описание:
     - удаляем refresh cookie (HttpOnly)
-    - (опционально) можем заблэклистить refresh, если подключен blacklist
     '''
     permission_classes = ()
     authentication_classes = ()
 
     def post(self, request, *args, **kwargs):
         cookie_name = settings.JWT_REFRESH_COOKIE_NAME
-        refresh_str = request.COOKIES.get(cookie_name)
 
         resp = Response(status=status.HTTP_204_NO_CONTENT)
-
-        # 1) Всегда удаляем cookie
         resp.delete_cookie(
             key=cookie_name,
             path=settings.JWT_REFRESH_COOKIE_PATH,
         )
-
-        # 2) Опционально: blacklist refresh (будет работать, только если включён token_blacklist)
-        # Если blacklist не подключен — просто игнорируем без ошибок.
-        if refresh_str:
-            try:
-                token = RefreshToken(refresh_str)
-                # метод blacklist() есть только когда подключено приложение blacklist
-                if hasattr(token, "blacklist"):
-                    token.blacklist()
-            except TokenError:
-                # токен битый/протух — нам всё равно, cookie уже удалили
-                pass
-            except Exception:
-                # на всякий случай не роняем logout
-                pass
-
         return resp
