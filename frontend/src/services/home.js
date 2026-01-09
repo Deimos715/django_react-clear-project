@@ -1,8 +1,8 @@
-import axios from 'axios';
+import api from './api';
 
 class StartDataService {
     getStartMessage() {
-        return axios.get('http://localhost:8000/api/home/');
+        return api.get('/home/');
     }
 }
 

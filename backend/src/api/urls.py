@@ -5,4 +5,5 @@ app_name = 'api'
 
 urlpatterns = [
     path('home/', HomeAPIView.as_view(), name='home'),
+    path('auth/', include('src.api.auth.urls')),
 ]

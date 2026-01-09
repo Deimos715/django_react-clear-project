@@ -20,7 +20,7 @@ class CustomUserAdmin(UserAdmin):
     # Форма, так как username удалён, собираем набор полей вручную
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        ('Личная информация', {'fields': ('first_name', 'last_name', 'middle_name', 'is_student')}),
+        ('Личная информация', {'fields': ('first_name', 'last_name', 'middle_name')}),
         ('Права доступа', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         ('Важные даты', {'fields': ('last_login', 'date_joined')}),
     )
@@ -28,7 +28,7 @@ class CustomUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'first_name', 'last_name', 'middle_name', 'is_student', 'password1', 'password2', 'is_staff', 'is_active'),
+            'fields': ('email', 'first_name', 'last_name', 'middle_name', 'password1', 'password2', 'is_staff', 'is_active'),
         }),
     )
 
