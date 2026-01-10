@@ -16,6 +16,7 @@ sitemaps = {
 
 urlpatterns = [
     path('auth/admin/', admin.site.urls),
+    path('', include('src.account.urls', namespace='account')),
     path('api/', include(('src.api.urls', 'api'), namespace='api')),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps},
         name='django.contrib.sitemaps.views.sitemap'),

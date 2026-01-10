@@ -33,11 +33,24 @@ const Header = () => {
                     Поддержка
                 </NavLink>
 
-                {/* Справа: Вход/Выход */}
+                {/* Справа: Вход / Регистрация / Выход */}
                 {!isAuth ? (
-                    <NavLink to='/login/' className={({ isActive }) => (isActive ? 'active' : 'inactive')}>
-                        Вход
-                    </NavLink>
+                    <>
+                        <NavLink
+                            to='/login/'
+                            className={({ isActive }) => (isActive ? 'active' : 'inactive')}
+                        >
+                            Вход
+                        </NavLink>
+
+                        <NavLink
+                            to='/register/'
+                            className={({ isActive }) => (isActive ? 'active' : 'inactive')}
+                            style={{ marginLeft: 12 }}
+                        >
+                            Регистрация
+                        </NavLink>
+                    </>
                 ) : (
                     <button type="button" onClick={onLogout} style={{ marginLeft: 12 }}>
                         Выход

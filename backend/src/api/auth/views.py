@@ -1,4 +1,12 @@
+import logging
 from django.conf import settings
+from django.db import transaction
+from django.urls import reverse
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -6,14 +14,22 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 
-from .serializers import LoginSerializer
+from .serializers import LoginSerializer, RegisterSerializer
+
+from src.account.tokens import account_activation_token
+
+logger = logging.getLogger(__name__)
+
+
+class ActivationEmailError(Exception):
+    pass
 
 
 class LoginAPIView(APIView):
     '''
     POST /api/auth/login/
 
-    Описание:
+    Поведение:
     - refresh кладём в HttpOnly cookie
     - access возвращаем в JSON
     '''
@@ -52,7 +68,7 @@ class RefreshAPIView(APIView):
     '''
     POST /api/auth/refresh/
 
-    Описание:
+    Поведение:
     - refresh берём из HttpOnly cookie
     - выдаём новый access в JSON
     - при ROTATE_REFRESH_TOKENS=True: выдаём новый refresh и обновляем cookie
@@ -97,12 +113,13 @@ class RefreshAPIView(APIView):
             # refresh после rotate меняется (объект обновится)
             refresh.set_jti()
             refresh.set_exp()
-
+            
+            # refresh cookie
             resp.set_cookie(
                 key=cookie_name,
                 value=str(refresh),
                 httponly=settings.JWT_REFRESH_COOKIE_HTTPONLY,
-                secure=getattr(settings, "JWT_REFRESH_COOKIE_SECURE", False),
+                secure=getattr(settings, "JWT_REFRESH_COOKIE_SECURE", True),
                 samesite=settings.JWT_REFRESH_COOKIE_SAMESITE,
                 path=settings.JWT_REFRESH_COOKIE_PATH,
             )
@@ -114,7 +131,7 @@ class LogoutAPIView(APIView):
     '''
     POST /api/auth/logout/
 
-    Описание:
+    Поведение:
     - удаляем refresh cookie (HttpOnly)
     '''
     permission_classes = ()
@@ -129,3 +146,67 @@ class LogoutAPIView(APIView):
             path=settings.JWT_REFRESH_COOKIE_PATH,
         )
         return resp
+
+
+class RegisterAPIView(APIView):
+    '''
+    POST /api/auth/register/
+
+    Поведение:
+    - создаём пользователя (is_active=False по CustomUserManager)
+    - отправляем письмо с активацией
+    - JWT НЕ выдаём (пользователь ещё не активирован)
+    - Если письмо подтверждения не отправилось — откатываем транзакцию,
+    пользователь не остаётся "висеть" в БД, и возвращаем 503.
+    '''
+    def post(self, request, *args, **kwargs):
+        serializer = RegisterSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            with transaction.atomic():
+                # 1) Создаём пользователя (менеджер ставит is_active=False)
+                user = serializer.save()
+
+                # 2) Генерируем ссылку активации
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                token = account_activation_token.make_token(user)
+
+                activation_url = request.build_absolute_uri(
+                    reverse("account:activate", kwargs={"uidb64": uid, "token": token})
+                )
+
+                # 3) Рендерим HTML письма
+                subject = "Активация личного кабинета на сайте"
+                html = render_to_string(
+                    "account/activation_email.html",
+                    {
+                        "user": user,
+                        "activation_url": activation_url,
+                        "uid": uid,
+                        "token": token,
+                    },
+                )
+
+                # 4) Отправляем письмо
+                email = EmailMessage(subject, html, to=[user.email])
+                email.content_subtype = "html"
+                try:
+                    email.send(fail_silently=False)
+                except Exception as exc:
+                    logger.exception("Failed to send activation email")
+                    raise ActivationEmailError() from exc
+
+        except ActivationEmailError:
+            return Response(
+                {
+                    "detail": "Не удалось отправить письмо подтверждения. Попробуйте позже.",
+                    "code": "activation_email_not_sent",
+                },
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        return Response(
+            {"detail": "Регистрация успешна. Проверьте почту и подтвердите аккаунт."},
+            status=status.HTTP_201_CREATED,
+        )

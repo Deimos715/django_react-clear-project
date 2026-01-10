@@ -35,6 +35,10 @@ class AuthService {
             });
     }
 
+    register(payload) {
+        return api.post('/auth/register/', payload).then((response) => response.data);
+    }
+
     setAccess(access) {
         localStorage.setItem('access', access);
     }

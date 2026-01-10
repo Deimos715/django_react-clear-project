@@ -1,0 +1,65 @@
+{% autoescape off %}
+<!doctype html>
+<html>
+  <body style="margin:0; padding:0; font-family:Arial,Helvetica,sans-serif; background:#f5f7fb; color:#1c2230;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f5f7fb; padding:24px 0;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="560" cellspacing="0" cellpadding="0" style="background:#ffffff; border-radius:12px; box-shadow:0 8px 24px rgba(14,25,52,0.08); overflow:hidden;">
+            <tr>
+              <td style="height:6px; background:linear-gradient(90deg, #1F2B93 0%, #CE354B 100%);"></td>
+            </tr>
+
+            <tr>
+              <td style="padding:32px 32px 12px 32px;">
+                <h2 style="margin:0 0 14px; font-size:18px; color:#1c2230; font-weight:700;">
+                  Здравствуйте, {{ user.get_full_name|default:user.email }}!
+                </h2>
+
+                <h1 style="margin:0 0 12px; font-size:22px; color:#1F2B93; font-weight:700;">
+                  Подтверждение email
+                </h1>
+
+                <p style="margin:0 0 12px; font-size:15px; color:#1c2230;">
+                  Добро пожаловать на <strong>наш сайт</strong>.
+                </p>
+                <p style="margin:0 0 20px; font-size:15px; color:#1c2230;">
+                  Для завершения регистрации подтвердите ваш email.
+                </p>
+
+                <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 24px;">
+                  <tr>
+                    <td>
+                      <a href="{{ activation_url }}"
+                        style="display:inline-block; padding:14px 22px; background:#1F2B93; color:#ffffff; text-decoration:none; font-weight:700; border-radius:8px;">
+                        Активировать личный кабинет
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+
+                <p style="margin:0 0 10px; font-size:14px; color:#4a5160;">
+                  Если кнопка не работает, скопируйте ссылку и откройте её в браузере:
+                </p>
+                <p style="margin:0; font-size:13px; color:#1c2230; word-break:break-all;">
+                  {{ activation_url }}
+                </p>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:0 32px 28px 32px;">
+                <hr style="border:none; border-top:1px solid #e6e9f0; margin:20px 0;">
+                <p style="margin:0; font-size:12px; color:#6a7283; line-height:1.6;">
+                  Если вы не регистрировались на нашем сайте, просто проигнорируйте это письмо.
+                </p>
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+{% endautoescape %}

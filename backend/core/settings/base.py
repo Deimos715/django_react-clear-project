@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 from datetime import timedelta
+from decouple import config
 
 
 load_dotenv()
@@ -26,6 +27,10 @@ AUTH_USER_MODEL = 'account.CustomUser'
 CORS_ALLOWED_ORIGINS = []
 CSRF_TRUSTED_ORIGINS = []
 CORS_ALLOW_CREDENTIALS = True
+
+
+# URL фронтенда для CORS и других настроек
+FRONTEND_URL = config('FRONTEND_URL')
 
 
 # Application definition
