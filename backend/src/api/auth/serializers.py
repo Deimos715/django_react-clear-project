@@ -1,7 +1,6 @@
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
-from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
@@ -105,7 +104,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'password2': 'Пароли не совпадают.'})
 
         # Валидируем пароль через AUTH_PASSWORD_VALIDATORS
-        # (включая кастомный валидатор длины из settings.py) :contentReference[oaicite:1]{index=1}
+        # (включая кастомный валидатор длины из settings.py)
         user = User(
             email=(attrs.get('email') or '').strip().lower(),
             first_name=(attrs.get('first_name') or '').strip(),
@@ -143,12 +142,14 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 class PasswordChangeSerializer(serializers.Serializer):
     '''
-    Смена пароля по API.
+    Смена пароля для авторизованного пользователя.
 
     Поведение:
-    - old_password
-    - new_password1
-    - new_password2
+    - Требуем авторизацию.
+    - Проверяем старый пароль.
+    - Сверяем new_password1 и new_password2.
+    - Валидируем новый пароль через AUTH_PASSWORD_VALIDATORS.
+    - Возвращаем user (в validated_data), если всё ок.
     '''
     old_password = serializers.CharField(write_only=True, trim_whitespace=False)
     new_password1 = serializers.CharField(write_only=True, trim_whitespace=False)
@@ -188,7 +189,9 @@ class PasswordResetStartSerializer(serializers.Serializer):
     Запрос письма для восстановления пароля.
 
     Поведение:
-    - email
+    - Принимаем email.
+    - Нормализуем email (strip + lower).
+    - Отправку письма делает view (serializer только валидирует вход).
     '''
     email = serializers.EmailField()
 
