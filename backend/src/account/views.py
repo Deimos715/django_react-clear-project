@@ -9,9 +9,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from .tokens import account_activation_token
 
+from django.contrib.auth.tokens import default_token_generator
 
-# Константы и choices
-User = get_user_model()
+
+# Модель пользователя
+User = get_user_model() # Возвращает актуальный класс пользователя, указанный в AUTH_USER_MODEL, именно account.CustomUser
 
 
 class ActivateAccountView(View):
@@ -52,3 +54,30 @@ class ActivateAccountView(View):
             path=settings.JWT_REFRESH_COOKIE_PATH,
         )
         return response
+
+
+class PasswordResetRedirectView(View):
+    '''
+    Переход по ссылке восстановления пароля из email.
+
+    Поведение:
+    - проверяем uid/token
+    - редиректим на React-страницы:
+    - /password/reset/confirm/<uidb64>/<token>/ (валидная ссылка)
+    - /password/reset/invalid/ (невалидная ссылка)
+    '''
+
+    def get(self, request, uidb64, token):
+        frontend_url = settings.FRONTEND_URL.rstrip('/')
+
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return redirect(frontend_url + '/password/reset/invalid/')
+
+        if not default_token_generator.check_token(user, token):
+            return redirect(frontend_url + '/password/reset/invalid/')
+
+        return redirect(frontend_url + f'/password/reset/confirm/{uidb64}/{token}/')
+

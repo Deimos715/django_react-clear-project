@@ -9,6 +9,13 @@ import Register from './pages/Register';
 import ActivationSuccess from './pages/ActivationSuccess';
 import ActivationInvalid from './pages/ActivationInvalid';
 import ActivationSent from './pages/ActivationSent';
+import PasswordChange from './pages/PasswordChange';
+import PasswordChangeSuccess from './pages/PasswordChangeSuccess';
+import PasswordResetRequest from './pages/PasswordResetRequest';
+import PasswordResetSent from './pages/PasswordResetSent';
+import PasswordResetConfirm from './pages/PasswordResetConfirm';
+import PasswordResetSuccess from './pages/PasswordResetSuccess';
+import PasswordResetInvalid from './pages/PasswordResetInvalid';
 
 const App = () => {
     return (
@@ -26,6 +33,13 @@ const App = () => {
             <Route path='activation/success/' element={<ActivationSuccess />} />
             <Route path='activation/invalid/' element={<ActivationInvalid />} />
             <Route path='activation/sent/' element={<ActivationSent />} />
+            <Route path='password/change/' element={<PasswordChange />} />
+            <Route path='password/change/success/' element={<PasswordChangeSuccess />} />
+            <Route path="password/reset/" element={<PasswordResetRequest />} />
+            <Route path="password/reset/sent/" element={<PasswordResetSent />} />
+            <Route path="password/reset/confirm/:uidb64/:token/" element={<PasswordResetConfirm />} />
+            <Route path="password/reset/success/" element={<PasswordResetSuccess />} />
+            <Route path="password/reset/invalid/" element={<PasswordResetInvalid />} />
         </Routes>
     </main>
     );

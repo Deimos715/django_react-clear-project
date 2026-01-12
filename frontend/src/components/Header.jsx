@@ -24,9 +24,22 @@ const Header = () => {
 
                 {/* Аккаунт показываем только авторизованным */}
                 {isAuth && (
-                    <NavLink to='/account/' className={({ isActive }) => (isActive ? 'active' : 'inactive')}>
-                        Аккаунт
-                    </NavLink>
+                    <>
+                        <NavLink
+                            to='/account/'
+                            className={({ isActive }) => (isActive ? 'active' : 'inactive')}
+                        >
+                            Аккаунт
+                        </NavLink>
+
+                        <NavLink
+                            to='/password/change/'
+                            className={({ isActive }) => (isActive ? 'active' : 'inactive')}
+                            style={{ marginLeft: 12 }}
+                        >
+                            Сменить пароль
+                        </NavLink>
+                    </>
                 )}
 
                 <NavLink to='/help/' className={({ isActive }) => (isActive ? 'active' : 'inactive')}>

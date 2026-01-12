@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import AuthService from '../services/auth';
 
 const Login = () => {
@@ -63,6 +63,10 @@ const Login = () => {
                 <button type="submit" disabled={loading}>
                     {loading ? 'Входим...' : 'Войти'}
                 </button>
+
+                <div style={{ marginTop: 12 }}>
+                    <NavLink to="/password/reset/">Забыли пароль?</NavLink>
+                </div>
             </form>
         </>
     );

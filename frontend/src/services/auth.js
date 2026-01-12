@@ -39,6 +39,35 @@ class AuthService {
         return api.post('/auth/register/', payload).then((response) => response.data);
     }
 
+    changePassword(old_password, new_password1, new_password2) {
+        return this.authorizedRequest({
+            method: 'POST',
+            url: '/auth/password-change/',
+            data: { old_password, new_password1, new_password2 },
+        }).then((res) => {
+            const access = res?.data?.access || '';
+            if (!access) {
+                throw new Error('Не пришёл access после смены пароля');
+            }
+            this.setAccess(access);
+            return res;
+        });
+    }
+
+    passwordResetStart(email) {
+    return api.post('/auth/password-reset/', { email })
+        .then((res) => res.data);
+}
+
+    passwordResetConfirm(uidb64, token, new_password1, new_password2) {
+        return api.post('/auth/password-reset/confirm/', {
+            uidb64,
+            token,
+            new_password1,
+            new_password2,
+        }).then((res) => res.data);
+    }
+
     setAccess(access) {
         localStorage.setItem('access', access);
     }
