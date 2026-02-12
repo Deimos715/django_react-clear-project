@@ -52,17 +52,27 @@ class LoginAPITestCase(APITestCase):
             format='json',
         )
 
+        # Проверка статуса
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Проверка, что в ответе присутствует access-токен
         self.assertIn('access', response.data)
+        # Проверка, что access-токен не пустой
         self.assertTrue(response.data['access'])
 
+        # Получаем имя refresh-cookie из настроек
         cookie_name = settings.JWT_REFRESH_COOKIE_NAME
+        # Проверка, что refresh-cookie установлена
         self.assertIn(cookie_name, response.cookies)
-
+        # Достаём саму cookie
         cookie = response.cookies[cookie_name]
+        
+        # Проверка флаг HttpOnly (безопасность: недоступна из JS)
         self.assertEqual(bool(cookie["httponly"]), bool(settings.JWT_REFRESH_COOKIE_HTTPONLY))
+        # Проверка атрибута SameSite
         self.assertEqual(cookie["samesite"], settings.JWT_REFRESH_COOKIE_SAMESITE)
+        # Проверка пути cookie
         self.assertEqual(cookie["path"], settings.JWT_REFRESH_COOKIE_PATH)
+        # Проверка флага Secure (зависит от dev/prod настроек)
         self.assertEqual(bool(cookie["secure"]), bool(settings.JWT_REFRESH_COOKIE_SECURE))
 
     def test_login_wrong_password_returns_400(self):
@@ -71,12 +81,15 @@ class LoginAPITestCase(APITestCase):
             {'email': 'test@example.com', 'password': 'wrong-password'},
             format='json',
         )
-
+        
+        # Проверка статуса
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        # Проверка, что ошибка пришла в общем поле non_field_errors
         self.assertIn("non_field_errors", response.data)
+        # Проверка, что текст ошибки соответствует контракту API
         self.assertIn("Неверный логин или пароль.", response.data["non_field_errors"])
 
-    def test_login_inactive_user_returns_403(self):
+    def test_login_inactive_user_returns_400(self):
         self.user.is_active = False
         self.user.save(update_fields=['is_active'])
 
@@ -86,5 +99,7 @@ class LoginAPITestCase(APITestCase):
             format='json',
         )
 
+        # Проверка статуса
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        # Проверка, что ошибка пришла в общем поле non_field_errors
         self.assertIn("non_field_errors", response.data)
