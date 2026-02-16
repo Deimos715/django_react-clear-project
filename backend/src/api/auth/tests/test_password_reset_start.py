@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
+from django.core import mail
 
 User = get_user_model()
 
@@ -37,14 +38,35 @@ class PasswordResetStartAPITestCase(APITestCase):
             middle_name = 'Test_middle_name',
 		)
 
+		self.user.is_active = True
+		self.user.save(update_fields=['is_active'])
 		self.url = reverse('api:auth:password-reset-start')
 
-	# Проверка существующего email
+	# Существующий email
 	def test_password_reset_start_existing_email_returns_200(self):
 		response = self.client.post(
 			self.url,
 			{
 				'email': self.user.email,
+			},
+			format='json',
+		)
+
+		# Проверка статуса
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
+		# Проверка, что ответ не раскрывает существование пользователя
+		self.assertEqual(response.data['detail'], 'Если такой email существует, мы отправили письмо для восстановления.')
+		# Проверка, что письмо отправляется
+		self.assertEqual(len(mail.outbox), 1)
+		# Проверка, что письмо отправлено на email пользователя
+		self.assertEqual(mail.outbox[0].to, [self.user.email])
+
+	# Несуществующий email
+	def test_password_reset_start_non_existing_email_returns_200(self):
+		response = self.client.post(
+			self.url,
+			{
+				'email': 'nonexistent@example.com'
 			},
 			format='json',
 		)
