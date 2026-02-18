@@ -70,3 +70,10 @@ class PasswordResetStartAPITestCase(APITestCase):
 			},
 			format='json',
 		)
+
+		# Проверка статуса
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
+		# Проверка, что ответ не раскрывает существование пользователя
+		self.assertEqual(response.data['detail'], 'Если такой email существует, мы отправили письмо для восстановления.')
+		# Проверка, что письмо не отправляется
+		self.assertEqual(len(mail.outbox), 0)
