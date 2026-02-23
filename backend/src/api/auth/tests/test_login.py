@@ -103,3 +103,5 @@ class LoginAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         # Проверка, что ошибка пришла в общем поле non_field_errors
         self.assertIn("non_field_errors", response.data)
+        # Проверка, что текст ошибки соответствует контракту API
+        self.assertIn("Неверный логин или пароль.", response.data["non_field_errors"])
