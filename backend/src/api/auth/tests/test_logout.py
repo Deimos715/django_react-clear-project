@@ -20,11 +20,11 @@ class LogoutAPITestCase(APITestCase):
     def setUp(self):
         self.password = 'StrongPass123!@#'
         self.user = User.objects.create_user(
-            email='test@example.com',
-            password=self.password,
-            first_name='Test_first_name',
-            last_name='Test_last_name',
-            middle_name='Test_middle_name',
+            email = 'test@example.com',
+            password = self.password,
+            first_name = 'Test_first_name',
+            last_name = 'Test_last_name',
+            middle_name = 'Test_middle_name',
         )
         self.user.is_active = True
         self.user.save(update_fields=['is_active'])

@@ -7,7 +7,7 @@ User = get_user_model()
 
 class RegisterAPITestCase(APITestCase):
     '''
- Тесты API регистрации пользователя.
+    Тесты API регистрации пользователя.
 
     Проверяем поведение POST /api/auth/register/.
 
@@ -54,6 +54,7 @@ class RegisterAPITestCase(APITestCase):
 
         self.url = reverse('api:auth:register')
 
+    # Успешная регистрация
     def test_register_success_creates_user(self):
         response = self.client.post(
             self.url,
@@ -75,6 +76,7 @@ class RegisterAPITestCase(APITestCase):
         user = User.objects.get(email="test@example.com")
         self.assertFalse(user.is_active)
 
+    # Регистрация с уже существующим email
     def test_register_existing_email_returns_400(self):
         User.objects.create_user(
             email = self.valid_payload['email'],
@@ -94,6 +96,7 @@ class RegisterAPITestCase(APITestCase):
         # Проверка текста ошибки для уже существующего email
         self.assertIn('Пользователь с таким email уже существует.', response.data['email'])
 
+    # Регистрация с несовпадающими паролями (password != password2)
     def test_register_password_mismatch_returns_400(self):
         data = self.valid_payload.copy()
         data['password2'] = 'DifferentStrongPass123!@#'
@@ -111,6 +114,7 @@ class RegisterAPITestCase(APITestCase):
         # Проверка текста ошибки
         self.assertIn('Пароли не совпадают.', response.data['password2'])
 
+    # Регистрация с паролем, не проходящим validate_password
     def test_register_short_password_returns_400(self):
         data = self.valid_payload.copy()
         data['password'] = 'Pass!@#'
@@ -129,6 +133,7 @@ class RegisterAPITestCase(APITestCase):
         # Проверка текста ошибки
         self.assertIn('Пароль слишком короткий', response.data['password'][0])
 
+    # Регистрация с пустыми обязательными полями
     def test_register_empty_first_name_returns_400(self):
         data = self.valid_payload.copy()
         data['first_name'] = ''
@@ -146,6 +151,7 @@ class RegisterAPITestCase(APITestCase):
         # Проверка текста ошибки
         self.assertIn('Это поле не может быть пустым.', response.data['first_name'])
 
+    # Регистрация с пустыми обязательными полями
     def test_register_empty_last_name_returns_400(self):
         data = self.valid_payload.copy()
         data['last_name'] = ''
@@ -163,6 +169,7 @@ class RegisterAPITestCase(APITestCase):
         # Проверка текста ошибки
         self.assertIn('Это поле не может быть пустым.', response.data['last_name'])
 
+    # Регистрация с пустыми обязательными полями
     def test_register_empty_middle_name_returns_400(self):
         data = self.valid_payload.copy()
         data['middle_name'] = ''
