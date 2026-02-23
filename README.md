@@ -1,89 +1,115 @@
 # Django + React Starter (DRF + Vite)
 
-Каркас full-stack приложения: backend на Django + DRF и frontend на React + Vite. В проекте уже подключены CORS, `robots.txt` и `sitemap.xml`, есть демо-API и базовые страницы фронта.
+Full-stack шаблон: backend на Django + DRF, frontend на React + Vite, запуск через Docker (dev/prod).
 
 ## Стек
-- Backend: Django 5.2.7, DRF 3.16.1, django-cors-headers, django-robots, python-dotenv, gunicorn.
-- Frontend: React 19.2.3, React Router 7.11.0, Vite 7.3.0, Sass (sass-embedded), ESLint, axios, @twa-dev/sdk.
-- Инфраструктура: Docker (dev/prod), PostgreSQL 17.
+- Backend: Python 3.12, Django 6.0.2, DRF 3.16.1, SimpleJWT, Gunicorn.
+- Frontend: React 19, React Router 7, Vite 7, Sass.
+- Инфраструктура: Docker Compose, PostgreSQL 17, Nginx (для frontend prod-образа).
 
-## Структура
-- `backend/` — Django-проект: `core` (settings/urls), `src/api` (DRF), `templates/admin`, `static`, Dockerfiles/Compose.
-- `frontend/` — Vite/React: `src/pages`, `src/components`, `src/services`, `src/scss`.
-- `README.md` — инструкции по запуску и деплою.
+## Актуальная структура
+- `docker-compose.dev.yml` — локальная разработка (backend + frontend + postgres).
+- `docker-compose.prod.yml` — production-схема (backend image + frontend image + postgres).
+- `backend/` — Django-проект и Dockerfile’ы backend.
+- `frontend/` — React-проект и Dockerfile’ы frontend.
+- `backend/core/settings/.env.dev` и `backend/core/settings/.env.prod` — env для Docker.
 
-## Быстрый старт (локально)
+## Важно про настройки
+- Проект сейчас настроен на PostgreSQL в `backend/core/settings/base.py`.
+- Для Docker используются:
+  - `backend/core/settings/.env.dev`
+  - `backend/core/settings/.env.prod`
+- Для ссылок активации/редиректов обязательно задайте:
+  - `FRONTEND_URL=http://localhost:5173` (dev)
+  - `FRONTEND_URL=https://ваш-домен` (prod)
 
-### Backend
+## Запуск в Docker (dev)
+
+1. Создайте env-файл:
 ```bash
-python -m venv .venv
-. .venv/bin/activate      # Windows: .\.venv\Scripts\Activate.ps1
-pip install -r backend/requirements.txt
-cd backend
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py runserver
+cp backend/core/settings/.env.dev.exemple backend/core/settings/.env.dev
 ```
-API: `http://localhost:8000/api/home/`, админка — `http://localhost:8000/auth/admin/`.
 
-### Frontend
+2. Заполните переменные в `backend/core/settings/.env.dev`:
+- `SECRET_KEY`
+- `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`
+- `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST=db_dev`, `DB_PORT=5432`
+- `FRONTEND_URL=http://localhost:5173`
+- SMTP-переменные (`EMAIL_*`, `DEFAULT_FROM_EMAIL`)
+
+3. Поднимите сервисы:
 ```bash
-cd frontend
-npm install
-npm run dev
-```
-Vite: `http://localhost:5173/`.
-
-## Настройки и окружение
-- Выбор окружения: `DJANGO_ENV=dev|prod` (см. `backend/core/settings/__init__.py`) или `DJANGO_SETTINGS_MODULE`.
-- `python-dotenv` загружает переменные из `.env`. Для локального запуска используйте `backend/core/settings/.env` (пример — `backend/core/settings/.env.exemple`).
-- Для Docker создайте `.env.dev` и `.env.prod` из `backend/core/settings/.env.*.exemple`.
-
-### База данных
-- По умолчанию используется SQLite (`backend/core/settings/base.py`).
-- Для PostgreSQL (Docker) переключите блоки SQLite/PostgreSQL в `backend/core/settings/base.py` и заполните `DB_*` в `.env.*`.
-
-### CORS
-- В `backend/core/settings/dev.py` разрешён `http://localhost:5173`. Для других адресов добавьте их в `CORS_ALLOWED_ORIGINS`.
-
-## API и маршруты
-- `GET /api/home/` — тестовый эндпоинт (см. `backend/src/api/views.py`).
-- `robots.txt` и `sitemap.xml` подключены в `backend/core/urls.py`.
-- Фронт-роуты: `/home`, `/login`, `/account`, `/taplink`, `/help`, `*` → NotFound.
-
-## Docker
-
-### dev
-```bash
-cd backend
-cp core/settings/.env.dev.exemple core/settings/.env.dev
 docker compose -f docker-compose.dev.yml up --build
 ```
-API: `http://localhost:8000/api/home/`, админка — `http://localhost:8000/auth/admin/`, PostgreSQL — `5439`.
 
-### prod
+4. Доступные адреса:
+- Frontend: `http://localhost:5173`
+- Backend API: `http://localhost:8000/api/home/`
+- Django admin: `http://localhost:8000/auth/admin/`
+- PostgreSQL: `localhost:5439`
+
+## Запуск в Docker (prod)
+
+1. Создайте env-файл:
 ```bash
-cd backend
-cp core/settings/.env.prod.exemple core/settings/.env.prod
+cp backend/core/settings/.env.prod.exemple backend/core/settings/.env.prod
+```
+
+2. Заполните `backend/core/settings/.env.prod` (аналогично dev, но с prod-значениями):
+- `FRONTEND_URL=https://ваш-домен`
+- `DB_HOST=db_prod`
+- `DB_PORT=5432`
+
+3. В `docker-compose.prod.yml` укажите свои образы:
+- `backend_prod.image`
+- `frontend_prod.image`
+
+4. Запуск:
+```bash
+docker compose -f docker-compose.prod.yml pull
 docker compose -f docker-compose.prod.yml up -d
 ```
-Перед запуском обновите image, порты и volume-монты в `backend/docker-compose.prod.yml`.
 
-## Статика и медиа
+5. Порты в текущем `docker-compose.prod.yml`:
+- Backend (gunicorn): `127.0.0.1:8001 -> 8000`
+- Frontend (nginx): `127.0.0.1:3000 -> 80`
+- PostgreSQL: `127.0.0.1:5440 -> 5432`
+
+## Сборка production-образов вручную (опционально)
+
+Если CI/CD не собирает образы автоматически:
+
 ```bash
-cd backend
-python manage.py collectstatic --noinput
+docker build -f backend/Dockerfile.prod -t ghcr.io/<owner>/<repo>-backend:latest ./backend
+docker build -f frontend/Dockerfile.prod -t ghcr.io/<owner>/<repo>-frontend:latest ./frontend
 ```
-- Статика: `backend/static/`, сборка — `backend/staticfiles/`.
-- Медиа: `backend/media/`.
 
-## Что стоит проверить/донастроить
-- `backend/core/sitemaps.py` содержит карту с именем маршрута `main:index` — обновите под реальные URL.
-- В `backend/docker-compose.prod.yml` healthcheck обращается к `/health` — добавьте эндпоинт или измените проверку.
-- `frontend/src/services/home.js` использует фиксированный URL `http://localhost:8000/api/home/` — замените для другого окружения.
+После этого обновите теги в `docker-compose.prod.yml`.
 
-## Полезные файлы
-- `backend/nginx/nginx-fastpanel-snippet.conf` — пример Nginx-конфига.
-- `backend/github_ci-cd.zip` — заготовки GitHub Actions.
-- `backend/deploy_my.sh` — пример деплоя (есть `git reset --hard`, используйте осторожно).
-- `frontend/update-deps.sh`, `frontend/update-deps.cmd` — обновление зависимостей.
+## Полезные команды
+
+Логи dev:
+```bash
+docker compose -f docker-compose.dev.yml logs -f
+```
+
+Остановка dev:
+```bash
+docker compose -f docker-compose.dev.yml down
+```
+
+Остановка prod:
+```bash
+docker compose -f docker-compose.prod.yml down
+```
+
+Пересоздать только backend в dev:
+```bash
+docker compose -f docker-compose.dev.yml up -d --build --force-recreate backend
+```
+
+## Известные моменты
+- Во frontend сейчас `baseURL` зашит как `http://localhost:8000/api` (`frontend/src/services/api.js`). Для реального production лучше вынести URL в env фронта.
+- Backend в dev/prod стартует с `migrate` (и в prod дополнительно `collectstatic`) через команду в compose.
+- В `docker-compose` используется поле `version`; современные версии Docker Compose его игнорируют (warning), это не ломает запуск.
+

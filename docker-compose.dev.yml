@@ -1,0 +1,57 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: django_dev # изменить для другого проекта
+    command: >
+      sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000" # наружный порт/внутренний порт
+    env_file:
+      - ./backend/core/settings/.env.dev # рекомендуется указывать .env.dev
+    depends_on:
+      db_dev:
+        condition: service_healthy
+    mem_limit: 512m
+    memswap_limit: 512m
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: react_dev # изменить для другого проекта
+    command: npm run dev -- --host 0.0.0.0 --port 5173
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173" # порт Vite
+    depends_on:
+      - backend
+    mem_limit: 256m
+    memswap_limit: 256m
+
+  db_dev:
+    image: postgres:17
+    container_name: postgres_dev # изменить postgres_dev для другого проекта
+    env_file:
+      - ./backend/core/settings/.env.dev # рекомендуется указывать .env.dev
+    ports:
+      - "5439:5432" # наружный порт/внутренний порт, для другого проекта меняем наружный порт на не занятый
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data # изменить postgres_dev для другого проекта
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    mem_limit: 384m
+    memswap_limit: 384m
+
+volumes:
+  postgres_dev_data: # изменить postgres_dev для другого проекта
