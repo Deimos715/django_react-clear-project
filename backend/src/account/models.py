@@ -64,7 +64,7 @@ class CustomUser(AbstractUser):
     email = models.EmailField(unique=True, verbose_name='Email') # Логинимся по email, username отключаем
     first_name = models.CharField(max_length=150, blank=False, verbose_name='Имя') # По ТЗ поле обязательное, переопределяем AbstractUser
     last_name = models.CharField(max_length=150, blank=False, verbose_name='Фамилия') # По ТЗ поле обязательное, переопределяем AbstractUser
-    middle_name = models.CharField(max_length=150, verbose_name='Отчество') # ФИО: first_name/last_name уже есть в 
+    middle_name = models.CharField(max_length=150, verbose_name='Отчество') # ФИО: first_name/last_name уже есть в AbstractUser, добавляем только отчество 
 
     USERNAME_FIELD = 'email' # Логинимся по email
     REQUIRED_FIELDS = [] # В createsuperuser запросит только email и пароль
